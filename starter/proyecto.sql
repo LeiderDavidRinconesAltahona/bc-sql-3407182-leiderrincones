@@ -1,53 +1,77 @@
 -- ============================================
--- PROYECTO SEMANAL: Conoce tu Dominio
+-- PROYECTO SEMANAL: DDL de tu Dominio
 -- DOMINIO: NOTARIA
 -- ============================================
 
 -- ============================================
--- PASO 1: ENTIDAD PRINCIPAL (DOCUMENTOS)
+-- LIMPIEZA
 -- ============================================
 
-CREATE TABLE items (
+DROP TABLE IF EXISTS relations;
+DROP TABLE IF EXISTS entities;
+DROP TABLE IF EXISTS items;
+
+-- ============================================
+-- TABLA 1: DOCUMENTOS (PRINCIPAL)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS items (
     id          INTEGER PRIMARY KEY,
     name        TEXT    NOT NULL,
-    type        TEXT,
-    date        TEXT
+    type        TEXT    NOT NULL,
+    status      TEXT    DEFAULT 'pendiente' CHECK (status IN ('pendiente','completado','cancelado')),
+    code        TEXT    UNIQUE,
+    is_active   INTEGER NOT NULL DEFAULT 1
 );
 
 -- ============================================
--- PASO 2: SEGUNDA ENTIDAD (CLIENTES)
+-- TABLA 2: CLIENTES
 -- ============================================
 
-CREATE TABLE entities (
+CREATE TABLE IF NOT EXISTS entities (
     id          INTEGER PRIMARY KEY,
     name        TEXT    NOT NULL,
-    email       TEXT,
-    phone       TEXT
+    email       TEXT UNIQUE,
+    phone       TEXT,
+    created_at  TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
--- PASO 3: DATOS
+-- TABLA 3: RELACIÓN (DOCUMENTO - CLIENTE)
 -- ============================================
 
--- 🔹 15 DOCUMENTOS (TABLA PRINCIPAL)
-INSERT INTO items (id, name, type, date) VALUES
-(1, 'Contrato de Compra', 'Contrato', '2026-04-01'),
-(2, 'Escritura Casa', 'Escritura', '2026-04-02'),
-(3, 'Poder Legal', 'Poder', '2026-04-03'),
-(4, 'Testamento', 'Legal', '2026-04-04'),
-(5, 'Contrato Arriendo', 'Contrato', '2026-04-05'),
-(6, 'Declaración Juramentada', 'Legal', '2026-04-06'),
-(7, 'Autenticación Firma', 'Trámite', '2026-04-07'),
-(8, 'Permiso Viaje', 'Legal', '2026-04-08'),
-(9, 'Contrato Laboral', 'Contrato', '2026-04-09'),
-(10, 'Divorcio Notarial', 'Legal', '2026-04-10'),
-(11, 'Compraventa Vehículo', 'Contrato', '2026-04-11'),
-(12, 'Reconocimiento Hijo', 'Legal', '2026-04-12'),
-(13, 'Capitulaciones', 'Legal', '2026-04-13'),
-(14, 'Poder Especial', 'Poder', '2026-04-14'),
-(15, 'Cancelación Hipoteca', 'Legal', '2026-04-15');
+CREATE TABLE IF NOT EXISTS relations (
+    id         INTEGER PRIMARY KEY,
+    item_id    INTEGER NOT NULL,
+    entity_id  INTEGER NOT NULL,
+    
+    FOREIGN KEY (item_id) REFERENCES items(id),
+    FOREIGN KEY (entity_id) REFERENCES entities(id)
+);
 
--- 🔹 5 CLIENTES
+-- ============================================
+-- INSERTS
+-- ============================================
+
+-- 🔹 DOCUMENTOS (15)
+INSERT INTO items (id, name, type, status, code) VALUES
+(1, 'Contrato Compra', 'Contrato', 'completado', 'DOC001'),
+(2, 'Escritura Casa', 'Escritura', 'pendiente', 'DOC002'),
+(3, 'Poder Legal', 'Poder', 'completado', 'DOC003'),
+(4, 'Testamento', 'Legal', 'pendiente', 'DOC004'),
+(5, 'Contrato Arriendo', 'Contrato', 'cancelado', 'DOC005'),
+(6, 'Declaración Juramentada', 'Legal', 'completado', 'DOC006'),
+(7, 'Autenticación Firma', 'Trámite', 'pendiente', 'DOC007'),
+(8, 'Permiso Viaje', 'Legal', 'completado', 'DOC008'),
+(9, 'Contrato Laboral', 'Contrato', 'pendiente', 'DOC009'),
+(10, 'Divorcio Notarial', 'Legal', 'completado', 'DOC010'),
+(11, 'Compraventa Vehículo', 'Contrato', 'pendiente', 'DOC011'),
+(12, 'Reconocimiento Hijo', 'Legal', 'completado', 'DOC012'),
+(13, 'Capitulaciones', 'Legal', 'cancelado', 'DOC013'),
+(14, 'Poder Especial', 'Poder', 'pendiente', 'DOC014'),
+(15, 'Cancelación Hipoteca', 'Legal', 'completado', 'DOC015');
+
+-- 🔹 CLIENTES (5)
 INSERT INTO entities (id, name, email, phone) VALUES
 (1, 'Juan Perez', 'juan@gmail.com', '3001234567'),
 (2, 'Maria Gomez', 'maria@gmail.com', '3012345678'),
@@ -55,19 +79,18 @@ INSERT INTO entities (id, name, email, phone) VALUES
 (4, 'Ana Torres', 'ana@gmail.com', '3034567890'),
 (5, 'Luis Martinez', 'luis@gmail.com', '3045678901');
 
+-- 🔹 RELACIONES (mínimo 5)
+INSERT INTO relations (id, item_id, entity_id) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3),
+(4, 4, 4),
+(5, 5, 5);
+
 -- ============================================
--- PASO 4: CONSULTAS
+-- VERIFICACIÓN
 -- ============================================
 
--- Todos los documentos
-SELECT *
-FROM items;
-
--- Nombres ordenados
-SELECT name
-FROM items
-ORDER BY name ASC;
-
--- Total de documentos
-SELECT COUNT(*) AS total_items
-FROM items;
+SELECT * FROM items;
+SELECT * FROM entities;
+SELECT * FROM relations;
