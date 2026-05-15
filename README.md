@@ -1,104 +1,188 @@
-# 🧾 Proyecto Semana 01 — Conoce tu Dominio
+# 🧾 Proyecto Semana 06 — Funciones de Agregación
 
 ## 📌 Descripción
 
-Este proyecto corresponde a la **Semana 01** del bootcamp de Bases de Datos Relacionales.
+Este proyecto corresponde a la **Semana 06** del bootcamp de Bases de Datos Relacionales.
 
-El dominio escogido fue una **Notaría**, donde se modelaron entidades básicas relacionadas con documentos notariales y clientes.
+En esta semana se trabajó el uso de funciones de agregación en SQL para generar reportes y resúmenes de información dentro del dominio de una **Notaría**.
 
 El objetivo principal fue:
 
-* Crear tablas principales
-* Insertar datos de prueba
-* Realizar consultas `SELECT` básicas
-* Comprender la estructura inicial de una base de datos relacional
+* Utilizar funciones de agregación
+* Realizar agrupaciones con `GROUP BY`
+* Filtrar grupos usando `HAVING`
+* Generar reportes con datos resumidos
+* Aplicar filtros usando `WHERE`
 
 ---
 
 # 🏛️ Dominio: Notaría
 
-La base de datos representa un sistema simple de gestión notarial.
+La base de datos representa un sistema básico de gestión notarial.
 
-## 📂 Entidades utilizadas
+Se trabajó con información relacionada a:
 
-### 📄 items
+* Clientes
+* Documentos notariales
+* Tarifas
+* Trámites
+* Notarios
 
-Representa los documentos notariales.
+---
+
+# 📂 Entidades utilizadas
+
+## 👤 clients
+
+Representa los clientes registrados en la notaría.
+
+---
+
+## 📄 documents
+
+Representa los documentos y trámites notariales.
 
 Ejemplos:
 
 * Contratos
 * Escrituras
-* Poderes
 * Testamentos
-
-### 👤 entities
-
-Representa los clientes de la notaría.
+* Poderes
 
 ---
 
-# 🧱 Estructura de Tablas
+## 💰 fees
 
-## 📄 Tabla: items
-
-| Columna | Tipo    |
-| ------- | ------- |
-| id      | INTEGER |
-| name    | TEXT    |
-| type    | TEXT    |
-| date    | TEXT    |
+Representa las tarifas y pagos realizados por los clientes.
 
 ---
 
-## 👤 Tabla: entities
+## 🧑‍⚖️ notaries
 
-| Columna | Tipo    |
-| ------- | ------- |
-| id      | INTEGER |
-| name    | TEXT    |
-| email   | TEXT    |
-| phone   | TEXT    |
+Representa los notarios encargados de los trámites.
 
 ---
 
-# 📥 Datos de prueba
+# 🧱 Funciones de agregación utilizadas
 
-Se insertaron:
+Durante el desarrollo se utilizaron:
 
-* ✅ 15 registros en `items`
-* ✅ 5 registros en `entities`
-
-Con información relacionada al dominio de notaría.
+| Función | Descripción             |
+| ------- | ----------------------- |
+| COUNT() | Cuenta registros        |
+| SUM()   | Suma valores            |
+| AVG()   | Calcula promedios       |
+| MIN()   | Obtiene el valor mínimo |
+| MAX()   | Obtiene el valor máximo |
 
 ---
 
 # 🔍 Consultas realizadas
 
-## 📌 Mostrar todos los documentos
+## 📌 Contar total de clientes
 
 ```sql
-SELECT * FROM items;
+SELECT COUNT(*) AS total_clientes
+FROM clients;
 ```
 
 ---
 
-## 📌 Mostrar nombres ordenados alfabéticamente
+## 📌 Calcular total y promedio de tarifas
 
 ```sql
-SELECT name
-FROM items
-ORDER BY name ASC;
+SELECT
+    SUM(amount) AS total_recaudado,
+    AVG(amount) AS promedio_tarifas
+FROM fees;
 ```
 
 ---
 
-## 📌 Contar documentos registrados
+## 📌 Obtener tarifa mínima y máxima
 
 ```sql
-SELECT COUNT(*) AS total_items
-FROM items;
+SELECT
+    MIN(amount) AS tarifa_minima,
+    MAX(amount) AS tarifa_maxima
+FROM fees;
 ```
+
+---
+
+## 📌 Agrupar documentos por tipo
+
+```sql
+SELECT
+    document_type,
+    COUNT(*) AS total_documentos
+FROM documents
+GROUP BY document_type;
+```
+
+---
+
+## 📌 Filtrar grupos con HAVING
+
+```sql
+SELECT
+    notary_id,
+    COUNT(*) AS total_tramites
+FROM fees
+GROUP BY notary_id
+HAVING COUNT(*) > 3;
+```
+
+---
+
+# 📊 Uso de GROUP BY y HAVING
+
+## 🔹 GROUP BY
+
+Permite agrupar registros para generar subtotales y reportes.
+
+Ejemplo:
+
+```sql
+SELECT
+    department_id,
+    COUNT(*) AS total
+FROM employees
+GROUP BY department_id;
+```
+
+---
+
+## 🔹 HAVING
+
+Permite filtrar resultados después de agrupar.
+
+Ejemplo:
+
+```sql
+SELECT
+    department_id,
+    COUNT(*) AS total
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) > 1;
+```
+
+---
+
+# 📥 Datos de prueba
+
+Se insertaron más de:
+
+* ✅ 30 registros principales
+* ✅ Datos distribuidos entre múltiples grupos
+* ✅ Información relacionada al dominio de notaría
+
+Esto permitió practicar correctamente:
+
+* Agregaciones
+* Agrupaciones
+* Filtros de grupos
 
 ---
 
@@ -125,7 +209,7 @@ El símbolo `\` se usa porque la carpeta contiene espacios.
 
 ---
 
-## 🔹 Paso 3 — Verificar que existe el archivo
+## 🔹 Paso 3 — Verificar los archivos
 
 ```bash
 ls
@@ -134,57 +218,72 @@ ls
 Debe aparecer:
 
 ```bash
+setup.sql
+ejercicio.sql
 proyecto.sql
+README.md
 ```
 
 ---
 
-## 🔹 Paso 4 — Ejecutar el script SQL
+## 🔹 Paso 4 — Ejecutar setup.sql
 
 ```bash
-sqlite3 mi_dominio.db < proyecto.sql
+sqlite3 notaria.db < setup.sql
 ```
 
 📌 Este comando:
 
-* Crea la base de datos
-* Ejecuta todas las tablas
+* Crea las tablas
 * Inserta los datos
-* Ejecuta las consultas
+* Prepara la base de datos
 
 ---
 
-## 🔹 Paso 5 — Abrir la base de datos
+## 🔹 Paso 5 — Ejecutar ejercicios
 
 ```bash
-sqlite3 mi_dominio.db
+sqlite3 notaria.db < ejercicio.sql
 ```
 
 ---
 
-## 🔹 Paso 6 — Verificar las tablas
+## 🔹 Paso 6 — Ejecutar proyecto semanal
+
+```bash
+sqlite3 notaria.db < proyecto.sql
+```
+
+---
+
+## 🔹 Paso 7 — Abrir la base de datos
+
+```bash
+sqlite3 notaria.db
+```
+
+---
+
+## 🔹 Paso 8 — Verificar tablas
 
 ```sql
 .tables
 ```
 
-Debe aparecer:
-
-```bash
-entities
-items
-```
-
 ---
 
-## 🔹 Paso 7 — Verificar los datos
+## 🔹 Paso 9 — Verificar datos
 
 ```sql
-SELECT * FROM items;
+SELECT * FROM clients;
 ```
 
 ```sql
-SELECT * FROM entities;
+SELECT * FROM documents;
+```
+
+```sql
+SELECT * FROM fees;
 ```
 
 ---

@@ -1,73 +1,76 @@
 -- ============================================
--- PROYECTO SEMANAL: Conoce tu Dominio
--- DOMINIO: NOTARIA
+-- PROYECTO SEMANAL — NOTARÍA
+-- SEMANA 06
 -- ============================================
 
 -- ============================================
--- PASO 1: ENTIDAD PRINCIPAL (DOCUMENTOS)
+-- TOTAL DE CLIENTES
 -- ============================================
 
-CREATE TABLE items (
-    id          INTEGER PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    type        TEXT,
-    date        TEXT
-);
+SELECT COUNT(*) AS total_clientes
+FROM clients;
 
 -- ============================================
--- PASO 2: SEGUNDA ENTIDAD (CLIENTES)
+-- TOTAL Y PROMEDIO DE TARIFAS
 -- ============================================
 
-CREATE TABLE entities (
-    id          INTEGER PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    email       TEXT,
-    phone       TEXT
-);
+SELECT
+    SUM(amount) AS total_recaudado,
+    AVG(amount) AS promedio_tarifas
+FROM fees;
 
 -- ============================================
--- PASO 3: DATOS
+-- TARIFA MÁS ALTA Y MÁS BAJA
 -- ============================================
 
--- 🔹 15 DOCUMENTOS (TABLA PRINCIPAL)
-INSERT INTO items (id, name, type, date) VALUES
-(1, 'Contrato de Compra', 'Contrato', '2026-04-01'),
-(2, 'Escritura Casa', 'Escritura', '2026-04-02'),
-(3, 'Poder Legal', 'Poder', '2026-04-03'),
-(4, 'Testamento', 'Legal', '2026-04-04'),
-(5, 'Contrato Arriendo', 'Contrato', '2026-04-05'),
-(6, 'Declaración Juramentada', 'Legal', '2026-04-06'),
-(7, 'Autenticación Firma', 'Trámite', '2026-04-07'),
-(8, 'Permiso Viaje', 'Legal', '2026-04-08'),
-(9, 'Contrato Laboral', 'Contrato', '2026-04-09'),
-(10, 'Divorcio Notarial', 'Legal', '2026-04-10'),
-(11, 'Compraventa Vehículo', 'Contrato', '2026-04-11'),
-(12, 'Reconocimiento Hijo', 'Legal', '2026-04-12'),
-(13, 'Capitulaciones', 'Legal', '2026-04-13'),
-(14, 'Poder Especial', 'Poder', '2026-04-14'),
-(15, 'Cancelación Hipoteca', 'Legal', '2026-04-15');
-
--- 🔹 5 CLIENTES
-INSERT INTO entities (id, name, email, phone) VALUES
-(1, 'Juan Perez', 'juan@gmail.com', '3001234567'),
-(2, 'Maria Gomez', 'maria@gmail.com', '3012345678'),
-(3, 'Carlos Lopez', 'carlos@gmail.com', '3023456789'),
-(4, 'Ana Torres', 'ana@gmail.com', '3034567890'),
-(5, 'Luis Martinez', 'luis@gmail.com', '3045678901');
+SELECT
+    MIN(amount) AS tarifa_minima,
+    MAX(amount) AS tarifa_maxima
+FROM fees;
 
 -- ============================================
--- PASO 4: CONSULTAS
+-- DOCUMENTOS POR TIPO
 -- ============================================
 
--- Todos los documentos
-SELECT *
-FROM items;
+SELECT
+    document_type,
+    COUNT(*) AS total_documentos
+FROM documents
+GROUP BY document_type
+ORDER BY total_documentos DESC;
 
--- Nombres ordenados
-SELECT name
-FROM items
-ORDER BY name ASC;
+-- ============================================
+-- PROMEDIO DE TARIFAS POR NOTARIO
+-- ============================================
 
--- Total de documentos
-SELECT COUNT(*) AS total_items
-FROM items;
+SELECT
+    notary_id,
+    COUNT(*) AS total_tramites,
+    ROUND(AVG(amount), 2) AS promedio_tarifas,
+    SUM(amount) AS total_recaudado
+FROM fees
+GROUP BY notary_id;
+
+-- ============================================
+-- NOTARIOS CON MÁS DE 3 TRÁMITES
+-- ============================================
+
+SELECT
+    notary_id,
+    COUNT(*) AS total_tramites
+FROM fees
+GROUP BY notary_id
+HAVING COUNT(*) > 3;
+
+-- ============================================
+-- NOTARIOS CON PROMEDIO ALTO
+-- ============================================
+
+SELECT
+    notary_id,
+    ROUND(AVG(amount), 2) AS promedio
+FROM fees
+WHERE amount > 100000
+GROUP BY notary_id
+HAVING AVG(amount) > 150000
+ORDER BY promedio DESC;
