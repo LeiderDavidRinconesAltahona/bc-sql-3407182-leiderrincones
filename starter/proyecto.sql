@@ -1,73 +1,86 @@
 -- ============================================
--- PROYECTO SEMANAL: Conoce tu Dominio
--- DOMINIO: NOTARIA
+-- PROYECTO.SQL
+-- Semana 05 — Evidencia de Producto
+-- Dominio: Notaría
 -- ============================================
 
 -- ============================================
--- PASO 1: ENTIDAD PRINCIPAL (DOCUMENTOS)
+-- CONSULTA 1 — BETWEEN
 -- ============================================
 
-CREATE TABLE items (
-    id          INTEGER PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    type        TEXT,
-    date        TEXT
-);
+SELECT first_name,
+       last_name,
+       age
+FROM clients
+WHERE age BETWEEN 18 AND 35;
 
 -- ============================================
--- PASO 2: SEGUNDA ENTIDAD (CLIENTES)
+-- CONSULTA 2 — NOT BETWEEN
 -- ============================================
 
-CREATE TABLE entities (
-    id          INTEGER PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    email       TEXT,
-    phone       TEXT
-);
+SELECT description,
+       amount
+FROM fees
+WHERE amount NOT BETWEEN 100000 AND 500000;
 
 -- ============================================
--- PASO 3: DATOS
+-- CONSULTA 3 — IN
 -- ============================================
 
--- 🔹 15 DOCUMENTOS (TABLA PRINCIPAL)
-INSERT INTO items (id, name, type, date) VALUES
-(1, 'Contrato de Compra', 'Contrato', '2026-04-01'),
-(2, 'Escritura Casa', 'Escritura', '2026-04-02'),
-(3, 'Poder Legal', 'Poder', '2026-04-03'),
-(4, 'Testamento', 'Legal', '2026-04-04'),
-(5, 'Contrato Arriendo', 'Contrato', '2026-04-05'),
-(6, 'Declaración Juramentada', 'Legal', '2026-04-06'),
-(7, 'Autenticación Firma', 'Trámite', '2026-04-07'),
-(8, 'Permiso Viaje', 'Legal', '2026-04-08'),
-(9, 'Contrato Laboral', 'Contrato', '2026-04-09'),
-(10, 'Divorcio Notarial', 'Legal', '2026-04-10'),
-(11, 'Compraventa Vehículo', 'Contrato', '2026-04-11'),
-(12, 'Reconocimiento Hijo', 'Legal', '2026-04-12'),
-(13, 'Capitulaciones', 'Legal', '2026-04-13'),
-(14, 'Poder Especial', 'Poder', '2026-04-14'),
-(15, 'Cancelación Hipoteca', 'Legal', '2026-04-15');
-
--- 🔹 5 CLIENTES
-INSERT INTO entities (id, name, email, phone) VALUES
-(1, 'Juan Perez', 'juan@gmail.com', '3001234567'),
-(2, 'Maria Gomez', 'maria@gmail.com', '3012345678'),
-(3, 'Carlos Lopez', 'carlos@gmail.com', '3023456789'),
-(4, 'Ana Torres', 'ana@gmail.com', '3034567890'),
-(5, 'Luis Martinez', 'luis@gmail.com', '3045678901');
+SELECT document_number,
+       document_type
+FROM documents
+WHERE document_type IN ('CC', 'PASSPORT');
 
 -- ============================================
--- PASO 4: CONSULTAS
+-- CONSULTA 4 — NOT IN
 -- ============================================
 
--- Todos los documentos
-SELECT *
-FROM items;
+SELECT first_name,
+       city
+FROM notaries
+WHERE city NOT IN ('Bogota');
 
--- Nombres ordenados
-SELECT name
-FROM items
-ORDER BY name ASC;
+-- ============================================
+-- CONSULTA 5 — LIKE
+-- ============================================
 
--- Total de documentos
-SELECT COUNT(*) AS total_items
-FROM items;
+SELECT first_name,
+       email
+FROM clients
+WHERE first_name LIKE 'A%';
+
+-- ============================================
+-- CONSULTA 6 — NOT LIKE
+-- ============================================
+
+SELECT first_name,
+       email
+FROM clients
+WHERE email NOT LIKE '%@outlook.com';
+
+-- ============================================
+-- CONSULTA 7 — FILTRO COMBINADO
+-- ============================================
+
+SELECT first_name,
+       last_name,
+       city,
+       age,
+       email
+FROM clients
+WHERE city IN ('Bogota', 'Cali')
+  AND age BETWEEN 18 AND 35
+  AND email LIKE '%gmail.com';
+
+-- ============================================
+-- CONSULTA 8 — FILTRO AVANZADO
+-- ============================================
+
+SELECT document_number,
+       status,
+       total_cost
+FROM documents
+WHERE status IN ('APPROVED', 'SIGNED')
+  AND total_cost BETWEEN 300000 AND 900000
+  AND document_number LIKE 'DOC%';
