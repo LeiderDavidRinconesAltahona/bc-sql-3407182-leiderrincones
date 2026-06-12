@@ -1,303 +1,296 @@
-# 🧾 Proyecto Semana 06 — Funciones de Agregación
+# 🧾 Proyecto Semana 07 — NULL y Constraints
 
 ## 📌 Descripción
 
-Este proyecto corresponde a la **Semana 06** del bootcamp de Bases de Datos Relacionales.
+Este proyecto corresponde a la **Semana 07** del bootcamp de Bases de Datos Relacionales.
 
-En esta semana se trabajó el uso de funciones de agregación en SQL para generar reportes y resúmenes de información dentro del dominio de una **Notaría**.
+En esta semana se trabajó el manejo de valores **NULL** y la implementación de **constraints** para garantizar la integridad de los datos dentro de una base de datos.
+
+El dominio escogido sigue siendo una **Notaría**, donde se administran documentos notariales, clientes y las relaciones entre ambos.
 
 El objetivo principal fue:
 
-* Utilizar funciones de agregación
-* Realizar agrupaciones con `GROUP BY`
-* Filtrar grupos usando `HAVING`
-* Generar reportes con datos resumidos
-* Aplicar filtros usando `WHERE`
+* Comprender el significado de NULL como valor desconocido.
+* Utilizar consultas con `IS NULL` e `IS NOT NULL`.
+* Reemplazar valores nulos mediante `COALESCE`.
+* Transformar valores utilizando `NULLIF`.
+* Aplicar restricciones de integridad mediante:
+
+  * `NOT NULL`
+  * `UNIQUE`
+  * `CHECK`
+  * `PRIMARY KEY`
+  * `FOREIGN KEY`
+* Activar la validación de claves foráneas con `PRAGMA foreign_keys = ON`.
 
 ---
 
-# 🏛️ Dominio: Notaría
+## 🏛️ Dominio: Notaría
 
-La base de datos representa un sistema básico de gestión notarial.
+La base de datos modela un sistema básico de gestión notarial donde:
 
-Se trabajó con información relacionada a:
-
-* Clientes
-* Documentos notariales
-* Tarifas
-* Trámites
-* Notarios
+* Los **documentos** representan trámites y servicios notariales.
+* Los **clientes** representan las personas que solicitan dichos trámites.
+* Las **relaciones** permiten asociar documentos con clientes.
 
 ---
 
-# 📂 Entidades utilizadas
+## 🗂️ Estructura del Proyecto
 
-## 👤 clients
+```text
+starter/
+│
+├── setup.sql
+├── ejercicio.sql
+├── proyecto.sql
+└── README.md
+```
 
-Representa los clientes registrados en la notaría.
+### 📄 setup.sql
 
----
+Contiene la configuración inicial de la base de datos.
 
-## 📄 documents
+### 📄 ejercicio.sql
 
-Representa los documentos y trámites notariales.
+Incluye las consultas y ejercicios prácticos de la semana relacionados con NULL y Constraints.
 
-Ejemplos:
+### 📄 proyecto.sql
 
-* Contratos
-* Escrituras
-* Testamentos
-* Poderes
+Implementación completa del proyecto semanal adaptado al dominio de Notaría.
 
----
+### 📄 README.md
 
-## 💰 fees
-
-Representa las tarifas y pagos realizados por los clientes.
-
----
-
-## 🧑‍⚖️ notaries
-
-Representa los notarios encargados de los trámites.
+Documentación general del proyecto.
 
 ---
 
-# 🧱 Funciones de agregación utilizadas
+## 🏗️ Tablas Implementadas
 
-Durante el desarrollo se utilizaron:
+### 📑 items (Documentos)
 
-| Función | Descripción             |
-| ------- | ----------------------- |
-| COUNT() | Cuenta registros        |
-| SUM()   | Suma valores            |
-| AVG()   | Calcula promedios       |
-| MIN()   | Obtiene el valor mínimo |
-| MAX()   | Obtiene el valor máximo |
+Almacena los documentos y trámites notariales.
+
+Campos principales:
+
+* id
+* name
+* type
+* status
+* code
+* is_active
+
+Restricciones aplicadas:
+
+* PRIMARY KEY
+* NOT NULL
+* UNIQUE
+* CHECK
+* DEFAULT
 
 ---
 
-# 🔍 Consultas realizadas
+### 👤 entities (Clientes)
 
-## 📌 Contar total de clientes
+Almacena la información de los clientes.
+
+Campos principales:
+
+* id
+* name
+* email
+* phone
+* created_at
+
+Restricciones aplicadas:
+
+* PRIMARY KEY
+* NOT NULL
+* UNIQUE
+* DEFAULT
+
+---
+
+### 🔗 relations (Relación Documento - Cliente)
+
+Permite asociar documentos con clientes.
+
+Campos principales:
+
+* id
+* item_id
+* entity_id
+
+Restricciones aplicadas:
+
+* PRIMARY KEY
+* FOREIGN KEY
+* NOT NULL
+
+---
+
+## 🔒 Constraints Utilizados
+
+### PRIMARY KEY
+
+Garantiza la identificación única de cada registro.
 
 ```sql
-SELECT COUNT(*) AS total_clientes
-FROM clients;
+id INTEGER PRIMARY KEY
+```
+
+### NOT NULL
+
+Impide almacenar valores vacíos en campos obligatorios.
+
+```sql
+name TEXT NOT NULL
+```
+
+### UNIQUE
+
+Evita la duplicación de valores.
+
+```sql
+email TEXT UNIQUE
+```
+
+### CHECK
+
+Valida reglas de negocio.
+
+```sql
+CHECK (status IN ('pendiente','completado','cancelado'))
+```
+
+### FOREIGN KEY
+
+Mantiene la integridad referencial entre tablas.
+
+```sql
+FOREIGN KEY (item_id)
+REFERENCES items(id)
 ```
 
 ---
 
-## 📌 Calcular total y promedio de tarifas
+## ⚠️ Manejo de NULL
 
-```sql
-SELECT
-    SUM(amount) AS total_recaudado,
-    AVG(amount) AS promedio_tarifas
-FROM fees;
-```
-
----
-
-## 📌 Obtener tarifa mínima y máxima
-
-```sql
-SELECT
-    MIN(amount) AS tarifa_minima,
-    MAX(amount) AS tarifa_maxima
-FROM fees;
-```
-
----
-
-## 📌 Agrupar documentos por tipo
-
-```sql
-SELECT
-    document_type,
-    COUNT(*) AS total_documentos
-FROM documents
-GROUP BY document_type;
-```
-
----
-
-## 📌 Filtrar grupos con HAVING
-
-```sql
-SELECT
-    notary_id,
-    COUNT(*) AS total_tramites
-FROM fees
-GROUP BY notary_id
-HAVING COUNT(*) > 3;
-```
-
----
-
-# 📊 Uso de GROUP BY y HAVING
-
-## 🔹 GROUP BY
-
-Permite agrupar registros para generar subtotales y reportes.
+Se agregaron registros con valores NULL para realizar pruebas y consultas.
 
 Ejemplo:
 
 ```sql
-SELECT
-    department_id,
-    COUNT(*) AS total
-FROM employees
-GROUP BY department_id;
+INSERT INTO entities (id, name, email, phone)
+VALUES
+(2, 'Maria Gomez', NULL, '3012345678');
 ```
 
 ---
 
-## 🔹 HAVING
+## 🔍 Consultas Implementadas
 
-Permite filtrar resultados después de agrupar.
+### IS NULL
 
-Ejemplo:
+Buscar clientes sin correo registrado.
+
+```sql
+SELECT *
+FROM entities
+WHERE email IS NULL;
+```
+
+### IS NOT NULL
+
+Buscar clientes con teléfono registrado.
+
+```sql
+SELECT *
+FROM entities
+WHERE phone IS NOT NULL;
+```
+
+### COALESCE
+
+Mostrar un valor alternativo cuando exista NULL.
 
 ```sql
 SELECT
-    department_id,
-    COUNT(*) AS total
-FROM employees
-GROUP BY department_id
-HAVING COUNT(*) > 1;
+    name,
+    COALESCE(email, 'Sin correo registrado')
+FROM entities;
+```
+
+### NULLIF
+
+Convertir valores específicos en NULL.
+
+```sql
+SELECT
+    name,
+    NULLIF(phone, '')
+FROM entities;
 ```
 
 ---
 
-# 📥 Datos de prueba
+## 📊 Datos de Prueba
 
-Se insertaron más de:
+El proyecto incluye:
 
-* ✅ 30 registros principales
-* ✅ Datos distribuidos entre múltiples grupos
-* ✅ Información relacionada al dominio de notaría
-
-Esto permitió practicar correctamente:
-
-* Agregaciones
-* Agrupaciones
-* Filtros de grupos
+* 30 documentos notariales.
+* 5 clientes.
+* Relaciones entre documentos y clientes.
+* Registros con valores NULL para pruebas.
 
 ---
 
-# ▶️ Cómo ejecutar el proyecto
+## ▶️ Cómo Ejecutar el Proyecto
 
-## 🔹 Paso 1 — Abrir la terminal
-
-Abrir:
-
-* Git Bash
-* CMD
-* Terminal integrada de VS Code
-
----
-
-## 🔹 Paso 2 — Ir a la carpeta del proyecto
-
-```bash
-cd ~/Downloads/SENA\ 3407182/starter
-```
-
-📌 Nota:
-El símbolo `\` se usa porque la carpeta contiene espacios.
-
----
-
-## 🔹 Paso 3 — Verificar los archivos
-
-```bash
-ls
-```
-
-Debe aparecer:
-
-```bash
-setup.sql
-ejercicio.sql
-proyecto.sql
-README.md
-```
-
----
-
-## 🔹 Paso 4 — Ejecutar setup.sql
-
-```bash
-sqlite3 notaria.db < setup.sql
-```
-
-📌 Este comando:
-
-* Crea las tablas
-* Inserta los datos
-* Prepara la base de datos
-
----
-
-## 🔹 Paso 5 — Ejecutar ejercicios
-
-```bash
-sqlite3 notaria.db < ejercicio.sql
-```
-
----
-
-## 🔹 Paso 6 — Ejecutar proyecto semanal
-
-```bash
-sqlite3 notaria.db < proyecto.sql
-```
-
----
-
-## 🔹 Paso 7 — Abrir la base de datos
+### 1. Crear la base de datos
 
 ```bash
 sqlite3 notaria.db
 ```
 
----
+### 2. Ejecutar el script
 
-## 🔹 Paso 8 — Verificar tablas
+```sql
+.read proyecto.sql
+```
+
+### 3. Verificar las tablas
 
 ```sql
 .tables
 ```
 
----
-
-## 🔹 Paso 9 — Verificar datos
+### 4. Consultar los datos
 
 ```sql
-SELECT * FROM clients;
-```
-
-```sql
-SELECT * FROM documents;
-```
-
-```sql
-SELECT * FROM fees;
+SELECT * FROM items;
+SELECT * FROM entities;
+SELECT * FROM relations;
 ```
 
 ---
 
-# 🛠️ Tecnologías utilizadas
+## ✅ Requisitos Cumplidos
 
-* SQLite3
-* SQL
-* Git
-* GitHub
-* VS Code
+* NOT NULL
+* UNIQUE
+* CHECK
+* PRIMARY KEY
+* FOREIGN KEY
+* PRAGMA foreign_keys = ON
+* IS NULL
+* IS NOT NULL
+* COALESCE
+* NULLIF
+* Registros con valores NULL
+* Integridad referencial entre tablas
 
 ---
 
-# 👨‍💻 Autor
+## 🎯 Resultado
 
-Proyecto realizado para práctica académica del programa ADSO — SENA.
+Se logró fortalecer el modelo de datos de la Notaría mediante restricciones de integridad y manejo adecuado de valores NULL, garantizando una base de datos más consistente, segura y preparada para futuras ampliaciones.
